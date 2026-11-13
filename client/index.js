@@ -235,11 +235,98 @@ window.__ModuleLoader__.load({
         ),
       )
     }
+    // 工具输出给模型的 image 块不会自动成为 Web Client 的图片卡片。
+    // 以 wire 工具名注册展示器，直接读取宿主授权的持久附件。
+    const IMAGE_VIEW_CSS = `
+.agv{max-width:700px;min-width:0;margin:4px 0 12px;font-size:13px;line-height:1.6;color:var(--dsw-alias-label-primary,#20232b)}
+.agv-head{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:8px}.agv-head span,.agv-note{font-size:12px;color:var(--dsw-alias-label-secondary,#656b77)}
+.agv-gallery{display:grid;gap:10px}.agv-preview{display:block;width:100%;min-width:0;padding:0;border:0;border-radius:10px;overflow:hidden;background:var(--dsw-alias-bg-layer-1,#f4f5f7);cursor:zoom-in}.agv-preview img{display:block;width:100%;height:auto;max-height:460px;object-fit:contain}.agv-preview:focus-visible,.agv button:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#315ce7);outline-offset:3px}
+.agv-note{margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}.agv-error{color:var(--dsw-alias-state-error-primary,#c13d45)}.agv-retry{padding:7px 12px;border:1px solid var(--dsw-alias-border-l2,#d9dde5);border-radius:7px;background:transparent;color:inherit;cursor:pointer}
+.agv-zoom{padding:12px;border:0;border-radius:12px;max-width:94vw;max-height:94vh;background:#20232b;color:#fff}.agv-zoom[open]{display:block;margin:auto}.agv-zoom::backdrop{background:rgba(0,0,0,.78)}.agv-zoom img{display:block;max-width:calc(94vw - 24px);max-height:calc(94vh - 68px);object-fit:contain}.agv-close{display:block;margin:0 0 10px auto;padding:6px 12px;border:1px solid #737985;border-radius:6px;background:transparent;color:#fff;cursor:pointer}
+`
+    function imageArgs(block) {
+      const reader = block?.args ?? block?.call?.args
+      if (typeof reader?.text === 'function') return {size:reader.text('size'),ratio:reader.text('ratio')}
+      if (reader && typeof reader === 'object' && ('size' in reader || 'ratio' in reader)) return reader
+      try { const value=JSON.parse(block?.call?.argsRaw ?? block?.argsRaw ?? '{}'); return value && typeof value==='object'?value:{} } catch {return {}}
+    }
+    function ImageZoom({url,name,trigger,onClose}) {
+      const dialog=React.useRef(null)
+      React.useEffect(()=>{const node=dialog.current;node.showModal();return()=>{node.close();trigger?.focus()}},[])
+      return el('dialog',{ref:dialog,className:'agv-zoom','aria-label':'图片原图',onCancel:(event)=>{event.preventDefault();onClose()},onClick:(event)=>{if(event.target===event.currentTarget)onClose()}},
+        el('button',{type:'button',className:'agv-close',autoFocus:true,onClick:onClose},'关闭原图'),el('img',{src:url,alt:name}))
+    }
+    function AgnesImage({attachment,loadImage,onOpen}) {
+      const id=attachment.attachmentId
+      const [attempt,retry]=React.useReducer(n=>n+1,0)
+      const [state,setState]=React.useState({id:null,url:null,error:false})
+      React.useEffect(()=>{
+        let active=true
+        setState({id,url:null,error:false})
+        if(typeof loadImage!=='function')return ()=>{active=false}
+        Promise.resolve().then(()=>{
+          const cached=attempt===0?loadImage.peek?.(attachment):null
+          return typeof cached==='string'&&cached.length>0?cached:loadImage(attachment)
+        }).then(url=>{
+          if(typeof url!=='string'||url.length===0)throw Error('Empty attachment URL')
+          if(active)setState({id,url,error:false})
+        }).catch(()=>{if(active)setState({id,url:null,error:true})})
+        return ()=>{active=false}
+      },[id,loadImage,attempt])
+      if(typeof loadImage!=='function')return el('p',{className:'agv-note agv-error',role:'alert'},'当前客户端无法读取图片，请重载 DSH 客户端后重试。')
+      if(state.id===id&&state.error)return el('div',null,el('p',{className:'agv-note agv-error',role:'alert'},'图片读取失败。'),el('button',{type:'button',className:'agv-retry',onClick:retry},'重新加载图片'))
+      if(state.id!==id||state.url===null)return el('p',{className:'agv-note',role:'status'},'正在加载图片…')
+      const name=attachment.name||'Agnes 图片'
+      return el('button',{type:'button',className:'agv-preview','aria-label':'查看原图：'+name,onClick:(event)=>onOpen({url:state.url,name,trigger:event.currentTarget})},
+        el('img',{src:state.url,alt:name,onError:()=>setState({id,url:null,error:true})}))
+    }
+    function AgnesImageRow({block,phase,loadImage}) {
+      const [zoom,setZoom]=React.useState(null)
+      const result=phase==='result'||(block&&typeof block==='object'&&'kind' in block)
+      const content=result&&Array.isArray(block?.content)?block.content:[]
+      const images=content.filter(part=>part?.type==='image'&&typeof part.attachment?.attachmentId==='string'&&part.attachment.mediaType?.startsWith('image/')).map(part=>part.attachment)
+      const texts=content.filter(part=>part?.type==='text'&&typeof part.text==='string').map(part=>part.text).filter(text=>!/^Agnes\s*出了/u.test(text))
+      const args=imageArgs(block),meta=[args.size,args.ratio].filter(value=>typeof value==='string'&&value.length>0).join(' · ')
+      return el('section',{className:'agv','aria-label':'Agnes 出图结果'},el('style',null,IMAGE_VIEW_CSS),
+        el('div',{className:'agv-head'},el('strong',null,'Agnes 出图'),meta&&el('span',null,meta)),
+        !result?el('p',{className:'agv-note',role:'status'},'正在生成图片…'):
+        block.isError?el('p',{className:'agv-note agv-error',role:'alert'},texts.join('\n')||'图片生成失败。'):
+        el(React.Fragment,null,images.length>0?el('div',{className:'agv-gallery'},images.map((attachment,index)=>el(AgnesImage,{key:attachment.attachmentId+index,attachment,loadImage,onOpen:setZoom}))):el('p',{className:'agv-note'},texts.length?'':'结果中没有图片附件。'),texts.length>0&&el('p',{className:'agv-note'},texts.join('\n'))),
+        zoom&&el(ImageZoom,{...zoom,onClose:()=>setZoom(null)}))
+    }
+    // 结果节点位于 turn 层，避免完成后的 process 折叠把成图一起藏住。
+    function registerImageResults(ctx) {
+      const kind='agnes-image-result'
+      const definition={
+        kind,target:'chat',
+        match:{
+          'tool/call':event=>event.data.name==='agnes_image'?{id:String(event.data.callId),role:'start'}:null,
+          'tool/result':event=>event.surfaceOp==='append'&&event.data.message?.source?.callId?{id:String(event.data.message.source.callId),role:'update'}:null,
+        },
+        start:(_context,match)=>({call:match.event.data,result:null}),
+        update:(context,match)=>({...context.state,result:match.event}),
+        buildViewNode(context) {
+          const call=context.state?.call,result=context.state?.result
+          if(call?.name!=='agnes_image'||!result)return null
+          const message=result.data.message
+          if(message.isError||!message.content?.some(part=>part.type==='image'))return null
+          return {key:context.key,id:context.id,kind,target:'chat',anchorSeq:result.seq,
+            location:context.start?.location??context.matches[0]?.location??{kind:'unresolved'},
+            visibility:'visible',groupTree:'turn',
+            data:{kind:'tool-result',call:{...call,argsRaw:call.arguments},content:message.content,isError:false}}
+        },
+      }
+      return ctx.uiConversation.events.register(definition)
+    }
+    function ImageResult({node,loadImage}) {return el(AgnesImageRow,{block:node.data,phase:'result',loadImage})}
     function RowEntry({ctx,view}) { const w=useWords(ctx); return view==='summary'?el('span',null,w('summary')):el(Page,{ctx}) }
     return {
-      inject:['slots','locale'],
+      inject:['slots','locale','uiConversation'],
       apply(ctx) {
         ctx.effect(()=>ctx.locale.register(NS,WORDS))
+        ctx.effect(()=>registerImageResults(ctx))
+        ctx.effect(()=>ctx.slots.inject('conversation.chat.node',()=>ctx.slots.register({name:'conversation.chat.node',key:'agnes-image-result'},ImageResult)))
+        ctx.effect(()=>ctx.slots.inject('tool.call.toolview',()=>ctx.slots.register({name:'tool.call.toolview',key:'agnes_image',id:'agnes_image'},AgnesImageRow)))
         ctx.effect(()=>ctx.slots.inject('settings.section',()=>ctx.slots.register({name:'settings.section',id:'agnes-craft',order:46,label:()=>ctx.locale.bind(NS)('nav'),locale:NS},()=>el(Page,{ctx}))))
         ctx.effect(()=>ctx.slots.inject('plugins.row.config',()=>ctx.slots.register({name:'plugins.row.config',key:'dsh-agnes-craft#dsh-agnes-craft',locale:NS},(props)=>el(RowEntry,{ctx,view:props.view}))))
       },

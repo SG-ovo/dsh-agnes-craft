@@ -4,7 +4,7 @@
 
 
 
-> 非官方社区插件，与 DeepSeek、Agnes AI 无隶属关系或官方背书。当前版本 **0.4.4**，作为公开测试版发布。插件本身免费开源；Agnes 图片 API 当前的免费条件见下文。
+> 非官方社区插件，与 DeepSeek、Agnes AI 无隶属关系或官方背书。当前版本 **0.4.5**，作为公开测试版发布。插件本身免费开源；Agnes 图片 API 当前的免费条件见下文。
 
 ## 免费出图：适用条件
 
@@ -38,8 +38,8 @@
 
 要求：DSH `>=0.2.2-rc.1 <0.3.0`，宿主 Node.js `>=22.14.0`。插件需要 DSH 的工具、附件和凭据服务。
 
-1. 从 [Releases](https://github.com/SG-ovo/dsh-agnes-craft/releases) 下载 `dsh-agnes-craft-0.4.4.tgz`。
-2. 在 DSH 对话中提供本地包路径，请 DSH 使用插件管理工具安装。例如：`请安装本地插件包 D:\Downloads\dsh-agnes-craft-0.4.4.tgz`。
+1. 从 [Releases](https://github.com/SG-ovo/dsh-agnes-craft/releases) 下载 `dsh-agnes-craft-0.4.5.tgz`。
+2. 在 DSH 对话中提供本地包路径，请 DSH 使用插件管理工具安装。例如：`请安装本地插件包 D:\Downloads\dsh-agnes-craft-0.4.5.tgz`。
 3. 重启或重新加载 DSH 客户端，进入 **设置 → Agnes 出图**。
 4. 按上面的免费条件确认账户适用情况，粘贴自己的 API Key，点击 **保存并检测**。也可以仅保存，之后单独检测。
 
@@ -99,8 +99,8 @@ API Key 通过 DSH Credentials 保存，默认引用名为 `AGNES_API_KEY`。插
 ## 验证范围
 
 - 42 条基础与回归测试，包含本地 HTTP 的请求、响应和下载链路检查。
-- 9 项 Chrome 浏览器操作检查，使用 React 18 模拟 DSH 的插槽和 API，覆盖设置页主要操作及窄屏、深色主题。
-- 这些检查不调用真实 Agnes 生成接口；当前版本尚未完成真实 DSH 宿主的完整验收。
+- 17 项 Chrome 浏览器操作检查，使用 React 18 模拟 DSH 的插槽和 API，覆盖设置页、对话图片显示、放大、重试及窄屏、深色主题。
+- 这些检查不调用真实 Agnes 生成接口；已在本机 DSH 确认真实生成结果直接展示，执行过程折叠后仍可见，并可点击放大；其他宿主版本及全部生成场景仍需继续验证。
 
 运行基础测试不需要安装依赖：
 

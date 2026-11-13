@@ -1,6 +1,6 @@
 {
   "name": "dsh-agnes-craft",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "在 DeepSeek Harness 对话里直接用 Agnes 出图：agent 识别意图后调工具，图片以图片块回到会话。",
   "type": "module",
   "exports": {
@@ -24,7 +24,7 @@
   "scripts": {
     "check": "node --check index.js && node --check client/index.js",
     "test": "node test/unit.test.js && node test/regression.test.js",
-    "test:ui": "node test/ui/run.mjs"
+    "test:ui": "node test/ui/run.mjs && node test/ui/toolview.mjs"
   },
   "keywords": [
     "dsh",

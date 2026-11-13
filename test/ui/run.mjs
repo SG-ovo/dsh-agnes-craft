@@ -16,6 +16,7 @@ const locale=new URLSearchParams(location.search).get('lang')||'zh';let words={}
 const ctx={
   locale:{register(ns,value){words=value;return ()=>{}},subscribe(){return ()=>{}},bind(){return key=>words[locale][key]}},
   effect(fn){return fn()},
+  uiConversation:{events:{register(){return ()=>{}}}},
   slots:{inject(name,fn){return fn()},register(meta,render){if(meta.name==='settings.section')ReactDOM.createRoot(document.getElementById('root')).render(new URLSearchParams(location.search).has('strict')?React.createElement(React.StrictMode,null,render()):render());return ()=>{}}}
 };
 window.__ModuleLoader__={load(mod){mod.factory(name=>{if(name==='react')return React;throw Error(name)}).apply(ctx)}};
