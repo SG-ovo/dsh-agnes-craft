@@ -38,7 +38,7 @@
 
 要求：DSH `>=0.2.2-rc.1 <0.3.0`，宿主 Node.js `>=22.14.0`。插件需要 DSH 的工具、附件和凭据服务。
 
-1. 从 [Releases](https://github.com/0v0-ovo/dsh-agnes-craft/releases) 下载 `dsh-agnes-craft-0.4.4.tgz`。
+1. 从 [Releases](https://github.com/SG-ovo/dsh-agnes-craft/releases) 下载 `dsh-agnes-craft-0.4.4.tgz`。
 2. 在 DSH 对话中提供本地包路径，请 DSH 使用插件管理工具安装。例如：`请安装本地插件包 D:\Downloads\dsh-agnes-craft-0.4.4.tgz`。
 3. 重启或重新加载 DSH 客户端，进入 **设置 → Agnes 出图**。
 4. 按上面的免费条件确认账户适用情况，粘贴自己的 API Key，点击 **保存并检测**。也可以仅保存，之后单独检测。

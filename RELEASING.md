@@ -1,6 +1,6 @@
 # 发布流程
 
-仓库：<https://github.com/0v0-ovo/dsh-agnes-craft>。
+仓库：<https://github.com/SG-ovo/dsh-agnes-craft>。
 
 ## 检查版本与内容
 

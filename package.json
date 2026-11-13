@@ -55,13 +55,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/0v0-ovo/dsh-agnes-craft.git"
+    "url": "git+https://github.com/SG-ovo/dsh-agnes-craft.git"
   },
   "bugs": {
-    "url": "https://github.com/0v0-ovo/dsh-agnes-craft/issues"
+    "url": "https://github.com/SG-ovo/dsh-agnes-craft/issues"
   },
-  "homepage": "https://github.com/0v0-ovo/dsh-agnes-craft#readme",
-  "author": "0v0-ovo",
+  "homepage": "https://github.com/SG-ovo/dsh-agnes-craft#readme",
+  "author": "SG-ovo",
   "publishConfig": {
     "access": "public"
   }
