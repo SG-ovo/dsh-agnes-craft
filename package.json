@@ -1,0 +1,68 @@
+{
+  "name": "dsh-agnes-craft",
+  "version": "0.4.4",
+  "description": "在 DeepSeek Harness 对话里直接用 Agnes 出图：agent 识别意图后调工具，图片以图片块回到会话。",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client/index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "src",
+    "client",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md"
+  ],
+  "scripts": {
+    "check": "node --check index.js && node --check client/index.js",
+    "test": "node test/unit.test.js && node test/regression.test.js",
+    "test:ui": "node test/ui/run.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "agnes",
+    "image-generation"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@deepseek-ai/schemastery": "~3.18.5"
+  },
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0",
+    "node": ">=22.14.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0v0-ovo/dsh-agnes-craft.git"
+  },
+  "bugs": {
+    "url": "https://github.com/0v0-ovo/dsh-agnes-craft/issues"
+  },
+  "homepage": "https://github.com/0v0-ovo/dsh-agnes-craft#readme",
+  "author": "0v0-ovo",
+  "publishConfig": {
+    "access": "public"
+  }
+}

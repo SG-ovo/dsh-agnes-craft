@@ -1,0 +1,19 @@
+# 依赖与本地缓存
+node_modules/
+.cache-pnpm/
+.pnpm-store/
+*.tgz
+
+# 本地验证产物
+smoke-*.png
+smoke-*.mp4
+test/ui/artifacts/
+
+# 凭据与运行数据
+.env
+.env.*
+!.env.example
+.credentials*
+settings.json
+attachments/
+agnes-output/

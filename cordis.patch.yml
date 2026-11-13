@@ -1,0 +1,4 @@
+# dsh-agnes-craft —— 装进 profile 后由本 patch 插入插件行。
+- insert:
+    - id: dsh-agnes-craft
+      name: 'dsh-agnes-craft'

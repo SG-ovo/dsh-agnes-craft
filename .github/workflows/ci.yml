@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # 单测只依赖 node 内置模块和 src/ 里的纯函数，故意不跑 install：
+      # 装依赖慢、且这个包在 DSH 里的安装方式有 junction 坑（见 CONTRIBUTING）。
+      - name: Syntax check
+        run: |
+          node --check index.js
+          node --check client/index.js
+          node --check src/access.js
+          node --check src/agnes.js
+          node --check src/config.js
+          node --check src/defaults.js
+          node --check src/errors.js
+          node --check src/http.js
+          node --check src/media.js
+          node --check src/present.js
+          node --check src/routes.js
+          node --check src/save.js
+          node --check src/store.js
+
+      - name: Unit tests
+        run: npm test
