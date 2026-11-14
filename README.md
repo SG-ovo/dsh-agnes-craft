@@ -15,6 +15,12 @@
 - **选择尺寸**：支持 1K–4K 和多种画幅。
 - **可选本地保存**：图片留在对话中，也可以额外保存到指定文件夹。
 
+## 出图效果
+
+实际使用截图：生成的小猫直接显示在 DeepSeek Harness 对话中。
+
+![DeepSeek Harness 对话中的真实出图结果：窗边的小猫](docs/images/conversation-result.png)
+
 ## 安装与配置
 
 需要 DeepSeek Harness `>=0.2.2-rc.1 <0.3.0`，宿主 Node.js `>=22.14.0`。
