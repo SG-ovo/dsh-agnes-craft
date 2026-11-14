@@ -1,4 +1,4 @@
-# Agnes 出图 · DeepSeek Harness 插件
+# dsh-agnes-craft
 
 在 DeepSeek Harness 对话里描述画面，生成的图片直接显示在对话中，点击即可放大预览。
 
